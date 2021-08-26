@@ -4,17 +4,20 @@ const PostSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
+      required: false,
       unique: true,
     },
     text: {
       type: String,
-      required: true,
+      required: false,
     },
     photo: {
       type: String,
       required: false,
-    }
+    },
+     cloudinary_id: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

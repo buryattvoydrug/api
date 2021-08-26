@@ -4,48 +4,47 @@ const GroupSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
+      required: false,
     },
     image: {
       type: String,
-      required: true,
-    },
-    photo: {
-      type: String,
-      required: true,
+      required: false,
     },
     type: {
       type: String,
-      required: true,
+      required: false,
     },
     name: {
       type: String,
-      required: true,
+      required: false,
     },
     day1: {
       type: String,
-      required: true,
+      required: false,
     },
     time1: {
       type: String,
-      required: true,
+      required: false,
     },
     day2: {
       type: String,
-      required: true,
+      required: false,
     },
     time2: {
       type: String,
-      required: true,
+      required: false,
     },
     day3: {
       type: String,
-      required: true,
+      required: false,
     },
     time3: {
       type: String,
-      required: true,
-    }
+      required: false,
+    },
+    cloudinary_id: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

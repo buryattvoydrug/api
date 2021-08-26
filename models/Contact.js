@@ -18,10 +18,6 @@ const ContactSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    photo1: {
-      type: String,
-      required: false,
-    },
     type2: {
       type: String,
       required: false,
@@ -35,10 +31,6 @@ const ContactSchema = new mongoose.Schema(
       required: false,
     },
     post2: {
-      type: String,
-      required: false,
-    },
-    photo2: {
       type: String,
       required: false,
     },

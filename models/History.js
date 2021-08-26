@@ -17,7 +17,10 @@ const HistorySchema = new mongoose.Schema(
     photo: {
       type: String,
       required: false,
-    }
+    },
+    cloudinary_id: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

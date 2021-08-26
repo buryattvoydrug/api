@@ -1,35 +1,56 @@
 const router = require("express").Router();
 const User = require("../models/User");
 const History = require("../models/History");
-
+const cloudinary = require("../utils/cloudinary");
+const upload = require("../utils/multer");
 //CREATE History
-router.post("/", async (req, res) => {
-  const newHistory = new History(req.body);
+router.post("/", upload.single("photo"),async (req, res) => {
   try {
-    const savedHistory = await newHistory.save();
-    res.status(200).json(savedHistory);
+    // Upload image to cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path);
+
+    let newHistory = new History({
+      date: req.body.date,
+      title: req.body.title,
+      text: req.body.text,
+      photo: result.secure_url,
+      cloudinary_id: result.public_id,
+    });
+    await newHistory.save();
+    res.status(200).json(newHistory);
   } catch (err) {
     res.status(500).json(err);
   }
 });
 
 //UPDATE History
-router.put("/:id", async (req, res) => {
-  console.log(req.body)
+router.put("/:id", upload.single("photo"),async (req, res) => {
+  console.log(req.file)
   try {
-    const history = await History.findById(req.params.id);
-      try {
-        const updatedHistory = await History.findByIdAndUpdate(
-          req.params.id,
-          {
-            $set: req.body,
-          },
-          { new: true }
-        );
-        res.status(200).json(updatedHistory);
-      } catch (err) {
-        res.status(500).json(err);
-      }
+      const history = await History.findById(req.params.id);
+        const result = await cloudinary.uploader.upload(req.file.path);
+        await cloudinary.uploader.destroy(history.cloudinary_id);
+        if(req.file){
+          await cloudinary.uploader.destroy(history.cloudinary_id);
+          const result = await cloudinary.uploader.upload(req.file.path);
+        }
+        const data={
+          date:req.body.date,
+          text:req.body.text,
+          title:req.body.title,
+          photo:result.secure_url,
+          cloudinary_id:result.public_id
+        }
+          try {
+            const updatedPost = await History.findByIdAndUpdate(
+              req.params.id,
+              data,
+              { new: true }
+            );
+            res.status(200).json(updatedPost);
+          } catch (err) {
+            res.status(500).json(err);
+          }
   } catch (err) {
     res.status(500).json(err);
   }

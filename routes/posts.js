@@ -1,7 +1,8 @@
 const router = require("express").Router();
 const User = require("../models/User");
 const Post = require("../models/Post");
-
+const cloudinary = require("../utils/cloudinary");
+const upload = require("../utils/multer");
 //CREATE POST
 // router.post("/", async (req, res) => {
 //   const newPost = new Post(req.body);
@@ -13,33 +14,44 @@ const Post = require("../models/Post");
 //   }
 // });
 router.post("/", upload.single("photo"), async (req, res) => {
+  console.log(req.file)
   try {
+    // Upload image to cloudinary
     const result = await cloudinary.uploader.upload(req.file.path);
 
     let newPost = new Post({
       title: req.body.title,
       text: req.body.text,
-      avatar: result.secure_url,
+      photo: result.secure_url,
       cloudinary_id: result.public_id,
     });
-    const savedPost = await newPost.save();
-    res.status(200).json(savedPost);
+    await newPost.save();
+    res.json(newPost);
   } catch (err) {
-    res.status(500).json(err);
+    console.log(err);
   }
 });
 
 //UPDATE POST
-router.put("/:id", async (req, res) => {
-  console.log(req.body)
+router.put("/:id", upload.single("photo"), async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
+    const result = await cloudinary.uploader.upload(req.file.path);
+    await cloudinary.uploader.destroy(post.cloudinary_id);
+    if(req.file){
+      await cloudinary.uploader.destroy(post.cloudinary_id);
+      const result = await cloudinary.uploader.upload(req.file.path);
+    }
+    const data={
+      title:req.body.title,
+      text:req.body.text,
+      photo:result.secure_url,
+      cloudinary_id:result.public_id
+    }
       try {
         const updatedPost = await Post.findByIdAndUpdate(
           req.params.id,
-          {
-            $set: req.body,
-          },
+          data,
           { new: true }
         );
         res.status(200).json(updatedPost);
@@ -53,6 +65,7 @@ router.put("/:id", async (req, res) => {
 
 //DELETE POST
 router.delete("/:id", async (req, res) => {
+  console.log(req.file)
   try {
     const post = await Post.findById(req.params.id);
     if (post.username === req.body.username) {

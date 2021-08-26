@@ -1,9 +1,9 @@
 const cloudinary = require("cloudinary").v2;
 
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: 'buryattvoydrug',
+  api_key: '681573696947176',
+  api_secret: 'mVkKci7c3DyBnAivmOdtYAn_8qQ',
 });
 
 module.exports = cloudinary;
