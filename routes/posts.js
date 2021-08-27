@@ -15,6 +15,7 @@ const upload = require("../utils/multer");
 // });
 router.post("/", upload.single("photo"), async (req, res) => {
   console.log(req.file)
+  console.log(req.body)
   try {
     // Upload image to cloudinary
     const result = await cloudinary.uploader.upload(req.file.path);
@@ -34,6 +35,8 @@ router.post("/", upload.single("photo"), async (req, res) => {
 
 //UPDATE POST
 router.put("/:id", upload.single("photo"), async (req, res) => {
+  console.log('file',req.file)
+  console.log('body',req.body)
   try {
     const post = await Post.findById(req.params.id);
     const result = await cloudinary.uploader.upload(req.file.path);
