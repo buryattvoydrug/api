@@ -4,76 +4,30 @@ const Group = require("../models/Group");
 const cloudinary = require("../utils/cloudinary");
 const upload = require("../utils/multer");
 //CREATE Group
-// router.post("/", async (req, res) => {
-//   const newGroup = new Group(req.body);
-//   try {
-//     const savedGroup = await newGroup.save();
-//     res.status(200).json(savedGroup);
-//   } catch (err) {
-//     res.status(500).json(err);
-//   }
-// });
-router.post("/", upload.single("image"), async (req, res) => {
+router.post("/", async (req, res) => {
   console.log(req.body)
-  console.log(req.file)
-  // console.log(req.file2)y
+  const newGroup = new Group(req.body);
   try {
-    // Upload image to cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path);
-    // const result2 = await cloudinary.uploader.upload(req.file2.path);
-
-    let newPost = new Group({
-      title: req.body.title,
-      type: req.body.type,
-      name: req.body.name,
-      day1: req.body.day1,
-      time1: req.body.time1,
-      day2: req.body.day2,
-      time2: req.body.time2,
-      day3: req.body.day3,
-      time3: req.body.time3,
-      image: result.secure_url,
-      // photo: result.secure_url,
-      cloudinary_id: result.public_id,
-    });
-    await newPost.save();
-    res.json(newPost);
+    const savedPost = await newGroup.save();
+    res.status(200).json(savedPost);
   } catch (err) {
-    console.log(err);
+    res.status(500).json(err);
   }
 });
 //UPDATE Group
-router.put("/:id", upload.single("image"), async (req, res) => {
+router.put("/:id", async (req, res) => {
   console.log(req.body)
   try {
-    const group = await Group.findById(req.params.id);
-    const result = await cloudinary.uploader.upload(req.file.path);
-    await cloudinary.uploader.destroy(group.cloudinary_id);
-    if(req.file){
-      await cloudinary.uploader.destroy(group.cloudinary_id);
-      const result = await cloudinary.uploader.upload(req.file.path);
-    }
-    const data={
-      title: req.body.title,
-      type: req.body.type,
-      name: req.body.name,
-      day1: req.body.day1,
-      time1: req.body.time1,
-      day2: req.body.day2,
-      time2: req.body.time2,
-      day3: req.body.day3,
-      time3: req.body.time3,
-      image: result.secure_url,
-      // photo: result.secure_url,
-      cloudinary_id: result.public_id,
-    }
+    const contact = await Group.findById(req.params.id);
       try {
-        const updatedGroup = await Group.findByIdAndUpdate(
+        const updatedPost = await Group.findByIdAndUpdate(
           req.params.id,
-          data,
+          {
+            $set: req.body,
+          },
           { new: true }
         );
-        res.status(200).json(updatedGroup);
+        res.status(200).json(updatedPost);
       } catch (err) {
         res.status(500).json(err);
       }
@@ -81,6 +35,7 @@ router.put("/:id", upload.single("image"), async (req, res) => {
     res.status(500).json(err);
   }
 });
+
 
 //DELETE Group
 router.delete("/:id", async (req, res) => {

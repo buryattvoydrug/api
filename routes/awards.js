@@ -4,64 +4,39 @@ const Award = require("../models/Award");
 const cloudinary = require("../utils/cloudinary");
 const upload = require("../utils/multer");
 //CREATE Award
-router.post("/",upload.single("photo"),  async (req, res) => {
+router.post("/", async (req, res) => {
+  console.log(req.body)
+  const newAward = new Award(req.body);
   try {
-    // Upload image to cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path);
-
-    let newAward = new Award({
-      date: req.body.date,
-      title: req.body.title,
-      gold: req.body.gold,
-      silver: req.body.silver,
-      bronze: req.body.bronze,
-      part: req.body.part,
-      photo: result.secure_url,
-      cloudinary_id: result.public_id,
-    });
-    await newAward.save();
-    res.status(200).json(newAward);
+    const savedPost = await newAward.save();
+    res.status(200).json(savedPost);
   } catch (err) {
     res.status(500).json(err);
   }
 });
 
 //UPDATE Award
-router.put("/:id",upload.single("photo"),  async (req, res) => {
-  console.log(req.body,req.file)
+router.put("/:id", async (req, res) => {
+  console.log(req.body)
+  try {
+    const contact = await Award.findById(req.params.id);
       try {
-        const award = await Award.findById(req.params.id);
-        const result = await cloudinary.uploader.upload(req.file.path);
-        await cloudinary.uploader.destroy(award.cloudinary_id);
-        if(req.file){
-          await cloudinary.uploader.destroy(award.cloudinary_id);
-          const result = await cloudinary.uploader.upload(req.file.path);
-        }
-        const data={
-          date: req.body.date,
-          title: req.body.title,
-          gold: req.body.gold,
-          silver: req.body.silver,
-          bronze: req.body.bronze,
-          part: req.body.part,
-          photo: result.secure_url,
-          cloudinary_id: result.public_id,
-        }
-          try {
-            const updatedPost = await Award.findByIdAndUpdate(
-              req.params.id,
-              data,
-              { new: true }
-            );
-            res.status(200).json(updatedPost);
-          } catch (err) {
-            res.status(500).json(err);
-          }
+        const updatedPost = await Award.findByIdAndUpdate(
+          req.params.id,
+          {
+            $set: req.body,
+          },
+          { new: true }
+        );
+        res.status(200).json(updatedPost);
       } catch (err) {
+        res.status(500).json(err);
+      }
+  } catch (err) {
     res.status(500).json(err);
   }
-
 });
+
 
 //DELETE Award
 router.delete("/:id", async (req, res) => {

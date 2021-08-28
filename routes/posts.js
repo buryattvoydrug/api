@@ -3,58 +3,28 @@ const User = require("../models/User");
 const Post = require("../models/Post");
 const cloudinary = require("../utils/cloudinary");
 const upload = require("../utils/multer");
-//CREATE POST
-// router.post("/", async (req, res) => {
-//   const newPost = new Post(req.body);
-//   try {
-//     const savedPost = await newPost.save();
-//     res.status(200).json(savedPost);
-//   } catch (err) {
-//     res.status(500).json(err);
-//   }
-// });
-router.post("/", upload.single("photo"), async (req, res) => {
-  console.log(req.file)
+// CREATE POST
+router.post("/", async (req, res) => {
   console.log(req.body)
+  const newPost = new Post(req.body);
   try {
-    // Upload image to cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path);
-
-    let newPost = new Post({
-      title: req.body.title,
-      text: req.body.text,
-      photo: result.secure_url,
-      cloudinary_id: result.public_id,
-    });
-    await newPost.save();
-    res.json(newPost);
+    const savedPost = await newPost.save();
+    res.status(200).json(savedPost);
   } catch (err) {
-    console.log(err);
+    res.status(500).json(err);
   }
 });
-
 //UPDATE POST
-router.put("/:id", upload.single("photo"), async (req, res) => {
-  console.log('file',req.file)
-  console.log('body',req.body)
+router.put("/:id", async (req, res) => {
+  console.log(req.body)
   try {
-    const post = await Post.findById(req.params.id);
-    const result = await cloudinary.uploader.upload(req.file.path);
-    await cloudinary.uploader.destroy(post.cloudinary_id);
-    if(req.file){
-      await cloudinary.uploader.destroy(post.cloudinary_id);
-      const result = await cloudinary.uploader.upload(req.file.path);
-    }
-    const data={
-      title:req.body.title,
-      text:req.body.text,
-      photo:result.secure_url,
-      cloudinary_id:result.public_id
-    }
+    const contact = await Post.findById(req.params.id);
       try {
         const updatedPost = await Post.findByIdAndUpdate(
           req.params.id,
-          data,
+          {
+            $set: req.body,
+          },
           { new: true }
         );
         res.status(200).json(updatedPost);
@@ -65,6 +35,7 @@ router.put("/:id", upload.single("photo"), async (req, res) => {
     res.status(500).json(err);
   }
 });
+
 
 //DELETE POST
 router.delete("/:id", async (req, res) => {
